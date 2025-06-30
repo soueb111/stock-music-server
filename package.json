@@ -1,17 +1,14 @@
 {
   "name": "stock-music-server",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "仮想通貨の価格をリアルタイムに配信するWebSocketサーバー",
+  "main": "server.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
     "node-fetch": "^3.3.2",
-    "ws": "^8.18.3"
+    "ws": "^8.15.1"
   }
 }

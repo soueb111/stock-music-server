@@ -1,16 +1,17 @@
-const WebSocket = require('ws');
-const fetch = require('node-fetch');
+import fetch from 'node-fetch';
+import { WebSocketServer } from 'ws';
 
-const wss = new WebSocket.Server({ port: 8080 });
+const PORT = process.env.PORT || 3000;
+const wss = new WebSocketServer({ port: PORT });
 
-console.log('✅ WebSocket サーバー起動中... (ws://localhost:8080)');
+console.log(`✅ WebSocket サーバー起動中... (ws://localhost:${PORT})`);
 
 const symbols = [
   { name: 'BTC', url: 'https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT' },
   { name: 'ETH', url: 'https://api.binance.com/api/v3/ticker/price?symbol=ETHUSDT' },
   { name: 'ADA', url: 'https://api.binance.com/api/v3/ticker/price?symbol=ADAUSDT' },
   { name: 'XRP', url: 'https://api.binance.com/api/v3/ticker/price?symbol=XRPUSDT' },
-  { name: 'SOL', url: 'https://api.binance.com/api/v3/ticker/price?symbol=SOLUSDT' },
+  { name: 'SOL', url: 'https://api.binance.com/api/v3/ticker/price?symbol=SOLUSDT' }
 ];
 
 async function fetchPrices() {
@@ -21,7 +22,7 @@ async function fetchPrices() {
       const data = await res.json();
       results[symbol.name] = parseFloat(data.price);
     } catch (err) {
-      console.error(`❌ ${symbol.name} の取得に失敗しました`);
+      console.error(`❌ ${symbol.name} の取得に失敗しました`, err.message);
     }
   }
   return results;
@@ -31,7 +32,7 @@ setInterval(async () => {
   const prices = await fetchPrices();
   const message = JSON.stringify(prices);
   wss.clients.forEach(client => {
-    if (client.readyState === WebSocket.OPEN) {
+    if (client.readyState === 1) {
       client.send(message);
     }
   });
