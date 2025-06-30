@@ -1,5 +1,5 @@
-import fetch from 'node-fetch';
-import { WebSocketServer } from 'ws';
+const fetch = require('node-fetch');
+const { WebSocketServer } = require('ws');
 
 const PORT = process.env.PORT || 3000;
 const wss = new WebSocketServer({ port: PORT });
