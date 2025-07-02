@@ -1,6 +1,7 @@
+import fetch from 'node-fetch';
 import { WebSocketServer } from 'ws';
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 const wss = new WebSocketServer({ port: PORT });
 
 console.log(`✅ WebSocket サーバー起動中... (ws://localhost:${PORT})`);
@@ -17,12 +18,22 @@ async function fetchPrices() {
   const results = {};
   for (const symbol of symbols) {
     try {
-      const res = await fetch(symbol.url);  // ← node-fetch ではなく標準 fetch を使う
+      const res = await fetch(symbol.url);
+
+      if (!res.ok) {
+        throw new Error(`HTTPエラー: ${res.status} ${res.statusText}`);
+      }
+
       const data = await res.json();
-      results[symbol.name] = parseFloat(data.price);
+      const price = parseFloat(data.price);
+
+      if (isNaN(price)) {
+        throw new Error(`数値に変換できません: ${data.price}`);
+      }
+
+      results[symbol.name] = price;
     } catch (err) {
-      console.error(`❌ ${symbol.name} の取得に失敗しました`);
-      console.error(err);  // 詳細エラー出力
+      console.error(`❌ ${symbol.name} の取得に失敗しました:`, err.message);
     }
   }
   return results;
