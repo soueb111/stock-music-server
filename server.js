@@ -6,36 +6,34 @@ const wss = new WebSocketServer({ port: PORT });
 
 console.log(`✅ WebSocket サーバー起動中... (ws://localhost:${PORT})`);
 
-const symbols = [
-  { name: 'BTC', url: 'https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT' },
-  { name: 'ETH', url: 'https://api.binance.com/api/v3/ticker/price?symbol=ETHUSDT' },
-  { name: 'ADA', url: 'https://api.binance.com/api/v3/ticker/price?symbol=ADAUSDT' },
-  { name: 'XRP', url: 'https://api.binance.com/api/v3/ticker/price?symbol=XRPUSDT' },
-  { name: 'SOL', url: 'https://api.binance.com/api/v3/ticker/price?symbol=SOLUSDT' }
-];
+// CoinGeckoで使用するコインIDと表示名の対応
+const symbolMap = {
+  bitcoin: 'BTC',
+  ethereum: 'ETH',
+  cardano: 'ADA',
+  ripple: 'XRP',
+  solana: 'SOL'
+};
+
+const apiUrl = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,cardano,ripple,solana&vs_currencies=usd';
 
 async function fetchPrices() {
   const results = {};
-  for (const symbol of symbols) {
-    try {
-      const res = await fetch(symbol.url);
-
-      if (!res.ok) {
-        throw new Error(`HTTPエラー: ${res.status} ${res.statusText}`);
-      }
-
-      const data = await res.json();
-      const price = parseFloat(data.price);
-
-      if (isNaN(price)) {
-        throw new Error(`数値に変換できません: ${data.price}`);
-      }
-
-      results[symbol.name] = price;
-    } catch (err) {
-      console.error(`❌ ${symbol.name} の取得に失敗しました:`, err.message);
+  try {
+    const res = await fetch(apiUrl);
+    if (!res.ok) {
+      throw new Error(`HTTPエラー: ${res.status} ${res.statusText}`);
     }
+    const data = await res.json();
+
+    for (const [coinId, priceData] of Object.entries(data)) {
+      const symbol = symbolMap[coinId];
+      results[symbol] = priceData.usd;
+    }
+  } catch (err) {
+    console.error('❌ 価格取得に失敗しました:', err.message);
   }
+
   return results;
 }
 
