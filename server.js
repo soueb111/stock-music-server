@@ -1,4 +1,3 @@
-import fetch from 'node-fetch';
 import { WebSocketServer } from 'ws';
 
 const PORT = process.env.PORT || 3000;
@@ -18,12 +17,12 @@ async function fetchPrices() {
   const results = {};
   for (const symbol of symbols) {
     try {
-      const res = await fetch(symbol.url);
+      const res = await fetch(symbol.url);  // ← node-fetch ではなく標準 fetch を使う
       const data = await res.json();
       results[symbol.name] = parseFloat(data.price);
     } catch (err) {
       console.error(`❌ ${symbol.name} の取得に失敗しました`);
-      console.error(err);  // ← エラー詳細をまるごと出力
+      console.error(err);  // 詳細エラー出力
     }
   }
   return results;
