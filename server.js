@@ -22,7 +22,8 @@ async function fetchPrices() {
       const data = await res.json();
       results[symbol.name] = parseFloat(data.price);
     } catch (err) {
-      console.error(`❌ ${symbol.name} の取得に失敗しました`, err.message);
+      console.error(`❌ ${symbol.name} の取得に失敗しました`);
+      console.error(err);  // ← エラー詳細をまるごと出力
     }
   }
   return results;
